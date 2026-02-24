@@ -1,0 +1,12 @@
+{
+  "rsvps": [
+    {
+      "id": 1,
+      "name": "Nguyen Van Test",
+      "guests": 2,
+      "message": "Chuc mung!",
+      "created_at": "2026-02-11T16:44:01.858Z"
+    }
+  ],
+  "nextId": 2
+}
