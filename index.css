@@ -69,7 +69,7 @@ a {
 }
 
 .container {
-    max-width: 1100px;
+    max-width: 1400px;
     margin: 0 auto;
     padding: 0 24px;
 }
@@ -427,15 +427,15 @@ a {
 
 .invitation-card {
     background: transparent;
-    max-width: 900px;
+    max-width: 1200px;
     margin: 0 auto;
-    padding: 0 40px 60px;
+    padding: 0 20px 60px;
     position: relative;
     text-align: center;
 }
 
 .invitation-inner {
-    padding: 0 40px 40px;
+    padding: 0 20px 40px;
 }
 
 /* Decorative Hearts from reference image */
@@ -506,21 +506,21 @@ a {
 }
 
 .parents-title {
-    font-family: var(--font-heading);
-    font-size: 0.95rem;
+    font-family: var(--font-body);
+    font-size: 1.1rem;
     color: #4A5D4E;
     /* Dark Olive Green from image */
-    letter-spacing: 0.2rem;
-    margin-bottom: 20px;
-    font-weight: 700;
+    letter-spacing: 0.15rem;
+    margin-bottom: 15px;
+    font-weight: 600;
 }
 
 .parent-name {
     font-family: var(--font-body);
-    font-size: 1rem;
+    font-size: 1.1rem;
     color: var(--color-text);
     margin-bottom: 5px;
-    font-weight: 400;
+    font-weight: 300;
 }
 
 .invitation-text {
@@ -778,7 +778,6 @@ a {
 @media (max-width: 768px) {
     .parents-row {
         flex-direction: row;
-        /* Keep side-by-side on mobile */
         gap: 15px;
         justify-content: space-between;
         align-items: flex-start;
@@ -787,19 +786,17 @@ a {
     .parents-col {
         flex: 1;
         min-width: 0;
-        /* Prevent overflow */
     }
 
     .parents-title {
         font-size: 0.75rem;
-        /* Shrink title for mobile */
         margin-bottom: 10px;
     }
 
     .parent-name {
         font-size: 0.85rem;
-        /* Shrink names for mobile */
         line-height: 1.4;
+        white-space: nowrap;
     }
 
     .invitation-card {
@@ -816,7 +813,44 @@ a {
 
     .decor-heart {
         display: none;
-        /* Hide hearts on small screens to save space */
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 0 12px;
+    }
+
+    .invitation-card,
+    .invitation-inner {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    .parents-row {
+        gap: 10px;
+    }
+
+    .parent-name {
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 401px) {
+
+    .invitation-card,
+    .invitation-inner {
+        padding-left: 5px;
+        padding-right: 5px;
+    }
+
+    .parents-row {
+        gap: 5px;
+    }
+
+    .parent-name {
+        font-size: 0.78rem;
+        letter-spacing: -0.01em;
     }
 }
 
@@ -826,16 +860,16 @@ a {
 .slideshow-section {
     padding: 0;
     overflow: hidden;
-    background: #000;
+    background: var(--color-bg);
     width: 100%;
+    height: 110vh;
+    max-height: 1040px;
 }
 
 .slideshow-container {
     position: relative;
     width: 100%;
-    height: 90vh;
-    /* Premium large view */
-    max-height: 800px;
+    height: 100%;
     margin: 0 auto;
     overflow: hidden;
 }
@@ -851,14 +885,51 @@ a {
     min-width: 100%;
     height: 100%;
     position: relative;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: transparent;
+}
+
+/* Blur Effect for Mobile Background */
+@media (max-width: 768px) {
+    .slide::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: var(--bg-image) center/cover no-repeat;
+        filter: blur(40px) brightness(0.9);
+        opacity: 0.7;
+        z-index: 1;
+        transform: scale(1.25);
+        /* Cover edges during blur */
+    }
 }
 
 .slide img {
+    /* Base for desktop (cover) */
     width: 100%;
     height: 100%;
     object-fit: cover;
-    /* Fill the screen */
     display: block;
+    position: relative;
+    z-index: 2;
+}
+
+@media (max-width: 768px) {
+    .slide img {
+        /* Mobile specific (contain) */
+        width: auto;
+        height: auto;
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        margin: auto;
+    }
 }
 
 /* Nav Buttons */
@@ -924,10 +995,6 @@ a {
 }
 
 @media (max-width: 768px) {
-    .slideshow-container {
-        height: 60vh;
-    }
-
     .slide-nav {
         width: 44px;
         height: 44px;
