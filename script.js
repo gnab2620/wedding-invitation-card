@@ -272,14 +272,16 @@ function initSlideshow() {
 
     let isTransitioning = false;
 
-    function updateSlides() {
+    async function updateSlides() {
         if (isTransitioning) return;
         isTransitioning = true;
 
+        // Lazy load current and adjacent slides (both bg and main img)
+        await loadSlideImage(currentIndex);
+
         wrapper.style.transform = `translateX(-${currentIndex * 100}%)`;
 
-        // Lazy load current and adjacent slides (both bg and main img)
-        loadSlideImage(currentIndex);
+        // Pre-load neighbors
         if (currentIndex < slides.length - 1) loadSlideImage(currentIndex + 1);
         if (currentIndex > 0) loadSlideImage(currentIndex - 1);
 
@@ -294,22 +296,29 @@ function initSlideshow() {
         }, 600);
     }
 
-    function loadSlideImage(index) {
+    async function loadSlideImage(index) {
         const slide = slides[index];
         if (!slide) return;
 
-        // 1. Load background image for blur effect
+        // 1. Load Background Blur Image (Low Res Thumbnail for Performance)
         const bgUrl = slide.getAttribute('data-bg');
         if (bgUrl && !slide.style.getPropertyValue('--bg-image')) {
-            slide.style.setProperty('--bg-image', `url('${bgUrl}')`);
+            // Transform URL to low-res thumbnail if it's Cloudinary
+            const lowResUrl = bgUrl.replace('/upload/', '/upload/w_50,c_scale,e_blur:1000,f_auto,q_auto/');
+            slide.style.setProperty('--bg-image', `url('${lowResUrl}')`);
         }
 
-        // 2. Pre-fetch main image if it hasn't started loading
+        // 2. Load & Decode Main Image
         const img = slide.querySelector('img');
         if (img && img.getAttribute('src')) {
-            // Check if already in cache/loading by creating a temporary Image object
-            const prefetch = new Image();
-            prefetch.src = img.getAttribute('src');
+            // Use decode() to ensure main image is ready before transition if it's the current slide
+            try {
+                if (img.decode) {
+                    await img.decode();
+                }
+            } catch (e) {
+                // Fallback for older browsers
+            }
         }
     }
 
