@@ -272,11 +272,31 @@ function initSlideshow() {
     function updateSlides() {
         wrapper.style.transform = `translateX(-${currentIndex * 100}%)`;
 
+        // Lazy load current and adjacent slides
+        loadSlideImage(currentIndex);
+        if (currentIndex < slides.length - 1) loadSlideImage(currentIndex + 1);
+        if (currentIndex > 0) loadSlideImage(currentIndex - 1);
+
         // Update indicators
         indicators.forEach((dot, idx) => {
             dot.classList.toggle('active', idx === currentIndex);
         });
     }
+
+    function loadSlideImage(index) {
+        const slide = slides[index];
+        if (!slide) return;
+
+        // Load background image for blur effect
+        const bgUrl = slide.getAttribute('data-bg');
+        if (bgUrl && !slide.style.getPropertyValue('--bg-image')) {
+            slide.style.setProperty('--bg-image', `url('${bgUrl}')`);
+        }
+    }
+
+    // Initial load for first slide
+    loadSlideImage(0);
+    if (slides.length > 1) loadSlideImage(1);
 
     function goToSlide(index) {
         currentIndex = index;
