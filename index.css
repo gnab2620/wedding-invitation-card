@@ -237,7 +237,7 @@ a {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: url('https://testfasttrack.blob.core.windows.net/wedding/hero-background.jpg') center/cover no-repeat;
+    background: url('https://res.cloudinary.com/dmfc9xovq/image/upload/v1772943991/HIE01523_uoe8fd.jpg') center/cover no-repeat;
     background-color: #f8f8f8;
     overflow: hidden;
 }
