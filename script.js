@@ -4,6 +4,7 @@
    ======================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
+    initIntroAnimation();
     initScrollAnimations();
     initNavScroll();
     initFloatingHearts();
@@ -348,4 +349,88 @@ function initSlideshow() {
     }, { passive: true });
 
     startAutoSlide();
+}
+
+/* ---- Intro Animation & Preloading ---- */
+function initIntroAnimation() {
+    const overlay = document.getElementById('intro-overlay');
+    const envelopeWrapper = document.querySelector('.envelope-wrapper');
+    const openBtn = document.getElementById('open-card-btn');
+    const loadingBar = document.getElementById('loading-bar');
+    const loadingText = document.getElementById('loading-text');
+
+    // Add active class to body to prevent scrolling
+    document.body.classList.add('intro-active');
+
+    // Collect all image URLs
+    const imagesToLoad = [];
+
+    // Check all img tags
+    document.querySelectorAll('img').forEach(img => {
+        if (img.src) imagesToLoad.push(img.src);
+    });
+
+    // Check all data-bg attributes
+    document.querySelectorAll('[data-bg]').forEach(el => {
+        const bg = el.getAttribute('data-bg');
+        if (bg) imagesToLoad.push(bg);
+    });
+
+    // Remove duplicates
+    const uniqueImages = [...new Set(imagesToLoad)];
+    let loadedCount = 0;
+    const totalCount = uniqueImages.length;
+
+    if (totalCount === 0) {
+        completePreloading();
+    } else {
+        uniqueImages.forEach(url => {
+            const img = new Image();
+            img.onload = img.onerror = () => {
+                loadedCount++;
+                const percent = Math.round((loadedCount / totalCount) * 100);
+                loadingBar.style.width = percent + '%';
+                loadingText.textContent = `Đang tải... ${percent}%`;
+
+                if (loadedCount === totalCount) {
+                    setTimeout(completePreloading, 500);
+                }
+            };
+            img.src = url;
+        });
+    }
+
+    function completePreloading() {
+        let countdown = 3;
+        loadingText.textContent = `Thiệp sẽ tự động mở sau ${countdown} giây...`;
+
+        const timer = setInterval(() => {
+            countdown--;
+            if (countdown > 0) {
+                loadingText.textContent = `Thiệp sẽ tự động mở sau ${countdown} giây...`;
+            } else {
+                clearInterval(timer);
+                loadingText.textContent = 'Đang mở...';
+                handleOpen();
+            }
+        }, 1000);
+    }
+
+    function handleOpen() {
+        if (envelopeWrapper.classList.contains('open')) return;
+
+        // Step 1: Open envelope flap
+        envelopeWrapper.classList.add('open');
+
+        // Step 2: Fade out overlay after animation
+        setTimeout(() => {
+            overlay.classList.add('fade-out');
+            document.body.classList.remove('intro-active');
+
+            // Re-trigger scroll animations for visible elements
+            setTimeout(() => {
+                window.dispatchEvent(new Event('scroll'));
+            }, 100);
+        }, 1500);
+    }
 }
