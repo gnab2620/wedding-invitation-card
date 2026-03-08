@@ -270,10 +270,15 @@ function initSlideshow() {
 
     const indicators = document.querySelectorAll('.indicator');
 
+    let isTransitioning = false;
+
     function updateSlides() {
+        if (isTransitioning) return;
+        isTransitioning = true;
+
         wrapper.style.transform = `translateX(-${currentIndex * 100}%)`;
 
-        // Lazy load current and adjacent slides
+        // Lazy load current and adjacent slides (both bg and main img)
         loadSlideImage(currentIndex);
         if (currentIndex < slides.length - 1) loadSlideImage(currentIndex + 1);
         if (currentIndex > 0) loadSlideImage(currentIndex - 1);
@@ -282,16 +287,29 @@ function initSlideshow() {
         indicators.forEach((dot, idx) => {
             dot.classList.toggle('active', idx === currentIndex);
         });
+
+        // Reset transition flag after CSS transition finishes
+        setTimeout(() => {
+            isTransitioning = false;
+        }, 600);
     }
 
     function loadSlideImage(index) {
         const slide = slides[index];
         if (!slide) return;
 
-        // Load background image for blur effect
+        // 1. Load background image for blur effect
         const bgUrl = slide.getAttribute('data-bg');
         if (bgUrl && !slide.style.getPropertyValue('--bg-image')) {
             slide.style.setProperty('--bg-image', `url('${bgUrl}')`);
+        }
+
+        // 2. Pre-fetch main image if it hasn't started loading
+        const img = slide.querySelector('img');
+        if (img && img.getAttribute('src')) {
+            // Check if already in cache/loading by creating a temporary Image object
+            const prefetch = new Image();
+            prefetch.src = img.getAttribute('src');
         }
     }
 
@@ -401,19 +419,8 @@ function initIntroAnimation() {
     }
 
     function completePreloading() {
-        let countdown = 3;
-        loadingText.textContent = `Thiệp sẽ tự động mở sau ${countdown} giây...`;
-
-        const timer = setInterval(() => {
-            countdown--;
-            if (countdown > 0) {
-                loadingText.textContent = `Thiệp sẽ tự động mở sau ${countdown} giây...`;
-            } else {
-                clearInterval(timer);
-                loadingText.textContent = 'Đang mở...';
-                handleOpen();
-            }
-        }, 1000);
+        loadingText.textContent = 'Đã sẵn sàng!';
+        setTimeout(handleOpen, 500); // Small buffer for visual comfort
     }
 
     function handleOpen() {
