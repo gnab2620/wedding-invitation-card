@@ -27,12 +27,24 @@ const SUPABASE_ANON_KEY = PROD_SUPABASE_ANON_KEY !== 'PLACEHOLDER_SUPABASE_ANON_
     ? PROD_SUPABASE_ANON_KEY
     : (typeof SUPABASE_ANON_KEY_SECRET !== 'undefined' ? SUPABASE_ANON_KEY_SECRET : 'your-anon-key');
 
+// --- Debug Logs (Remove after verifying) ---
+console.log('RSVP Debug - URL:', SUPABASE_URL);
+console.log('RSVP Debug - Key:', SUPABASE_ANON_KEY ? (SUPABASE_ANON_KEY.substring(0, 10) + '...') : 'Missing');
+
 let supabaseClient = null;
+const isProduction = window.location.hostname.includes('github.io') ||
+    window.location.hostname.includes('vercel.app') ||
+    window.location.hostname.includes('netlify.app');
+
 // Initialize if URL and Key are updated (not placeholders)
 const isConfigured = SUPABASE_URL &&
+    SUPABASE_URL !== '' &&
     !SUPABASE_URL.includes('your-project-url') &&
+    !SUPABASE_URL.includes('PLACEHOLDER') &&
     SUPABASE_ANON_KEY &&
-    SUPABASE_ANON_KEY !== 'your-anon-key';
+    SUPABASE_ANON_KEY !== '' &&
+    SUPABASE_ANON_KEY !== 'your-anon-key' &&
+    !SUPABASE_ANON_KEY.includes('PLACEHOLDER');
 
 if (typeof supabase !== 'undefined' && isConfigured) {
     try {
@@ -40,6 +52,8 @@ if (typeof supabase !== 'undefined' && isConfigured) {
     } catch (e) {
         console.error('Supabase Init Error:', e);
     }
+} else if (isProduction && !isConfigured) {
+    console.warn('RSVP Warning: Supabase is not configured for production. Please check your GitHub Repository Secrets.');
 }
 
 /* ---- Countdown Timer ---- */
@@ -259,6 +273,11 @@ function initRSVPForm() {
                 if (error) throw error;
                 success = true;
             } else {
+                // If on production but Supabase is missing, don't try local API
+                if (isProduction) {
+                    throw new Error('Hệ thống RSVP chưa được cấu hình. Vui lòng thiết lập GitHub Secrets theo hướng dẫn.');
+                }
+
                 // Check if running on file protocol
                 if (window.location.protocol === 'file:') {
                     throw new Error('Bạn đang mở tệp trực tiếp từ máy tính. Vui lòng chạy máy chủ (npm start) hoặc cấu hình Supabase để chức năng này hoạt động.');
