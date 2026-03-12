@@ -21,9 +21,19 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Inject Supabase Secrets
+        env:
+          SB_URL: ${{ secrets.SUPABASE_URL }}
+          SB_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         run: |
-          sed -i "s|PLACEHOLDER_SUPABASE_URL|${{ secrets.SUPABASE_URL }}|g" script.js
-          sed -i "s|PLACEHOLDER_SUPABASE_ANON_KEY|${{ secrets.SUPABASE_ANON_KEY }}|g" script.js
+          if [ -z "$SB_URL" ] || [ -z "$SB_KEY" ]; then
+            echo "::warning title=Missing Secrets::SUPABASE_URL or SUPABASE_ANON_KEY is not set in GitHub Secrets. Deployment will use placeholders."
+          fi
+          # Use | as delimiter to handle slashes in URLs
+          sed -i "s|PLACEHOLDER_SUPABASE_URL|${SB_URL}|g" script.js
+          sed -i "s|PLACEHOLDER_SUPABASE_ANON_KEY|${SB_KEY}|g" script.js
+          
+          echo "Injection step completed. Checking placeholders in script.js..."
+          grep -E "PROD_SUPABASE_URL|PROD_SUPABASE_ANON_KEY" script.js
 
       - name: Setup Pages
         uses: actions/configure-pages@v4

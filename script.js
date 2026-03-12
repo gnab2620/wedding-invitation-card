@@ -28,8 +28,11 @@ const SUPABASE_ANON_KEY = PROD_SUPABASE_ANON_KEY !== 'PLACEHOLDER_SUPABASE_ANON_
     : (typeof SUPABASE_ANON_KEY_SECRET !== 'undefined' ? SUPABASE_ANON_KEY_SECRET : 'your-anon-key');
 
 // --- Debug Logs (Remove after verifying) ---
-console.log('RSVP Debug - URL:', SUPABASE_URL);
-console.log('RSVP Debug - Key:', SUPABASE_ANON_KEY ? (SUPABASE_ANON_KEY.substring(0, 10) + '...') : 'Missing');
+console.log('RSVP Debug - Prod URL Set:', PROD_SUPABASE_URL !== 'PLACEHOLDER_SUPABASE_URL');
+console.log('RSVP Debug - Final URL:', SUPABASE_URL);
+if (isProduction && !isConfigured) {
+    console.warn('RSVP Warning: Supabase is NOT configured. URL is:', SUPABASE_URL);
+}
 
 let supabaseClient = null;
 const isProduction = window.location.hostname.includes('github.io') ||
