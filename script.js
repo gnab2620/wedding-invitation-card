@@ -14,49 +14,34 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // --- Supabase Configuration ---
-// These placeholders will be replaced during GitHub Actions deployment
-const PROD_SUPABASE_URL = 'PLACEHOLDER_SUPABASE_URL';
-const PROD_SUPABASE_ANON_KEY = 'PLACEHOLDER_SUPABASE_ANON_KEY';
-
-// Priority: 1. GitHub Action Inject | 2. config-secrets.js | 3. Defaults
-const SUPABASE_URL = PROD_SUPABASE_URL !== 'PLACEHOLDER_SUPABASE_URL'
-    ? PROD_SUPABASE_URL
-    : (typeof SUPABASE_URL_SECRET !== 'undefined' ? SUPABASE_URL_SECRET : 'https://your-project-url.supabase.co');
-
-const SUPABASE_ANON_KEY = PROD_SUPABASE_ANON_KEY !== 'PLACEHOLDER_SUPABASE_ANON_KEY'
-    ? PROD_SUPABASE_ANON_KEY
-    : (typeof SUPABASE_ANON_KEY_SECRET !== 'undefined' ? SUPABASE_ANON_KEY_SECRET : 'your-anon-key');
+// Priority: 1. config-secrets.js (local or injected by GitHub Actions) | 2. Defaults
+const SUPABASE_URL = (typeof SUPABASE_URL_SECRET !== 'undefined') ? SUPABASE_URL_SECRET : 'https://your-project-url.supabase.co';
+const SUPABASE_ANON_KEY = (typeof SUPABASE_ANON_KEY_SECRET !== 'undefined') ? SUPABASE_ANON_KEY_SECRET : 'your-anon-key';
 
 // --- Debug Logs (Remove after verifying) ---
-console.log('RSVP Debug - Prod URL Set:', PROD_SUPABASE_URL !== 'PLACEHOLDER_SUPABASE_URL');
-console.log('RSVP Debug - Final URL:', SUPABASE_URL);
-if (isProduction && !isConfigured) {
-    console.warn('RSVP Warning: Supabase is NOT configured. URL is:', SUPABASE_URL);
-}
+console.log('RSVP Debug - URL:', SUPABASE_URL);
+console.log('RSVP Debug - Key Loaded:', (SUPABASE_ANON_KEY !== 'your-anon-key' && SUPABASE_ANON_KEY !== ''));
 
-let supabaseClient = null;
 const isProduction = window.location.hostname.includes('github.io') ||
     window.location.hostname.includes('vercel.app') ||
     window.location.hostname.includes('netlify.app');
 
-// Initialize if URL and Key are updated (not placeholders)
 const isConfigured = SUPABASE_URL &&
-    SUPABASE_URL !== '' &&
-    !SUPABASE_URL.includes('your-project-url') &&
-    !SUPABASE_URL.includes('PLACEHOLDER') &&
+    SUPABASE_URL !== 'https://your-project-url.supabase.co' &&
     SUPABASE_ANON_KEY &&
-    SUPABASE_ANON_KEY !== '' &&
-    SUPABASE_ANON_KEY !== 'your-anon-key' &&
-    !SUPABASE_ANON_KEY.includes('PLACEHOLDER');
+    SUPABASE_ANON_KEY !== 'your-anon-key';
 
+if (isProduction && !isConfigured) {
+    console.warn('RSVP Warning: Supabase is NOT configured. Check GitHub Secrets or config-secrets.js');
+}
+
+let supabaseClient = null;
 if (typeof supabase !== 'undefined' && isConfigured) {
     try {
         supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     } catch (e) {
         console.error('Supabase Init Error:', e);
     }
-} else if (isProduction && !isConfigured) {
-    console.warn('RSVP Warning: Supabase is not configured for production. Please check your GitHub Repository Secrets.');
 }
 
 /* ---- Countdown Timer ---- */
