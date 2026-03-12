@@ -13,6 +13,35 @@ document.addEventListener('DOMContentLoaded', () => {
     initSlideshow();
 });
 
+// --- Supabase Configuration ---
+// These placeholders will be replaced during GitHub Actions deployment
+const PROD_SUPABASE_URL = 'PLACEHOLDER_SUPABASE_URL';
+const PROD_SUPABASE_ANON_KEY = 'PLACEHOLDER_SUPABASE_ANON_KEY';
+
+// Priority: 1. GitHub Action Inject | 2. config-secrets.js | 3. Defaults
+const SUPABASE_URL = PROD_SUPABASE_URL !== 'PLACEHOLDER_SUPABASE_URL'
+    ? PROD_SUPABASE_URL
+    : (typeof SUPABASE_URL_SECRET !== 'undefined' ? SUPABASE_URL_SECRET : 'https://your-project-url.supabase.co');
+
+const SUPABASE_ANON_KEY = PROD_SUPABASE_ANON_KEY !== 'PLACEHOLDER_SUPABASE_ANON_KEY'
+    ? PROD_SUPABASE_ANON_KEY
+    : (typeof SUPABASE_ANON_KEY_SECRET !== 'undefined' ? SUPABASE_ANON_KEY_SECRET : 'your-anon-key');
+
+let supabaseClient = null;
+// Initialize if URL and Key are updated (not placeholders)
+const isConfigured = SUPABASE_URL &&
+    !SUPABASE_URL.includes('your-project-url') &&
+    SUPABASE_ANON_KEY &&
+    SUPABASE_ANON_KEY !== 'your-anon-key';
+
+if (typeof supabase !== 'undefined' && isConfigured) {
+    try {
+        supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    } catch (e) {
+        console.error('Supabase Init Error:', e);
+    }
+}
+
 /* ---- Countdown Timer ---- */
 function initCountdown() {
     const weddingDate = new Date('2026-03-22T11:30:00+07:00').getTime();
@@ -219,24 +248,43 @@ function initRSVPForm() {
         btnLoading.style.display = 'inline';
 
         try {
-            const response = await fetch('/api/rsvp', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, guests, message }),
-            });
+            let success = false;
 
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
+            if (supabaseClient) {
+                // Submit to Supabase
+                const { error } = await supabaseClient
+                    .from('rsvps')
+                    .insert([{ name, guests, message }]);
+
+                if (error) throw error;
+                success = true;
+            } else {
+                // Check if running on file protocol
+                if (window.location.protocol === 'file:') {
+                    throw new Error('Bạn đang mở tệp trực tiếp từ máy tính. Vui lòng chạy máy chủ (npm start) hoặc cấu hình Supabase để chức năng này hoạt động.');
+                }
+
+                // Fallback to local API (for development)
+                const response = await fetch('/api/rsvp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, guests, message }),
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                const data = await response.json();
+                success = data.success;
             }
 
-            const data = await response.json();
-
-            if (data.success) {
+            if (success) {
                 // Show success message
                 form.style.display = 'none';
                 successEl.style.display = 'block';
             } else {
-                throw new Error(data.error || 'Có lỗi xảy ra');
+                throw new Error('Có lỗi xảy ra');
             }
         } catch (error) {
             console.error('RSVP Error:', error);
