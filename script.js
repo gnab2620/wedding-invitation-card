@@ -14,25 +14,25 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // --- Supabase Configuration ---
-// Priority: 1. config-secrets.js (local or injected by GitHub Actions) | 2. Defaults
-const SUPABASE_URL = (typeof SUPABASE_URL_SECRET !== 'undefined') ? SUPABASE_URL_SECRET : 'https://your-project-url.supabase.co';
-const SUPABASE_ANON_KEY = (typeof SUPABASE_ANON_KEY_SECRET !== 'undefined') ? SUPABASE_ANON_KEY_SECRET : 'your-anon-key';
+// TO USER: DO NOT edit these values here. Add them to GitHub Repository Secrets.
+const SUPABASE_URL = '---YOUR_SUPABASE_URL_HERE---';
+const SUPABASE_ANON_KEY = '---YOUR_SUPABASE_ANON_KEY_HERE---';
 
 // --- Debug Logs (Remove after verifying) ---
 console.log('RSVP Debug - URL:', SUPABASE_URL);
-console.log('RSVP Debug - Key Loaded:', (SUPABASE_ANON_KEY !== 'your-anon-key' && SUPABASE_ANON_KEY !== ''));
+console.log('RSVP Debug - Key Loaded:', (SUPABASE_ANON_KEY !== '---YOUR_SUPABASE_ANON_KEY_HERE---' && SUPABASE_ANON_KEY !== ''));
 
 const isProduction = window.location.hostname.includes('github.io') ||
     window.location.hostname.includes('vercel.app') ||
     window.location.hostname.includes('netlify.app');
 
 const isConfigured = SUPABASE_URL &&
-    SUPABASE_URL !== 'https://your-project-url.supabase.co' &&
+    SUPABASE_URL !== '---YOUR_SUPABASE_URL_HERE---' &&
     SUPABASE_ANON_KEY &&
-    SUPABASE_ANON_KEY !== 'your-anon-key';
+    SUPABASE_ANON_KEY !== '---YOUR_SUPABASE_ANON_KEY_HERE---';
 
 if (isProduction && !isConfigured) {
-    console.warn('RSVP Warning: Supabase is NOT configured. Check GitHub Secrets or config-secrets.js');
+    console.warn('RSVP Warning: Supabase is NOT configured. Check GitHub Secrets.');
 }
 
 let supabaseClient = null;

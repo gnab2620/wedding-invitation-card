@@ -20,14 +20,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Create Config Secrets File
+      - name: Inject Supabase Secrets
         env:
           SB_URL: ${{ secrets.SUPABASE_URL }}
           SB_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         run: |
-          echo "const SUPABASE_URL_SECRET = '${SB_URL}';" > config-secrets.js
-          echo "const SUPABASE_ANON_KEY_SECRET = '${SB_KEY}';" >> config-secrets.js
-          echo "config-secrets.js created for deployment."
+          sed -i "s|---YOUR_SUPABASE_URL_HERE---|${SB_URL}|g" script.js
+          sed -i "s|---YOUR_SUPABASE_ANON_KEY_HERE---|${SB_KEY}|g" script.js
+          echo "Secrets injected into script.js successfully."
 
       - name: Setup Pages
         uses: actions/configure-pages@v4

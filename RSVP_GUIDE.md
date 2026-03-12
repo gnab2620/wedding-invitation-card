@@ -37,10 +37,9 @@ create policy "Allow public read" on rsvps for select using (true);
 3. Tìm **anon public** key (một chuỗi ký tự dài).
 
 ## Bước 4: Cập nhật mã nguồn
-1. Mở file `config-secrets.js` của bạn.
-2. Thay `https://your-project-url.supabase.co` bằng URL của bạn.
-3. Thay `your-anon-key` bằng key bạn vừa copy.
-4. Lưu file. Tệp này đã được tôi thêm vào `.gitignore` nên sẽ **không bị đẩy lên GitHub**, giúp bảo mật mã của bạn khi làm việc trên máy tính.
+1. Bạn **không cần** chỉnh sửa file `script.js` trên máy tính bằng mã thật.
+2. Mã bảo mật sẽ được tự động điền vào thông qua GitHub Actions (xem Bước 5).
+3. Nếu bạn muốn chạy thử ở máy tính cá nhân, bạn có thể tạm thời điền mã vào `script.js` nhưng hãy nhớ **xóa đi** trước khi commit để tránh lộ mã.
 
 ## Bước 5: Cấu hình GitHub để Deploy an toàn
 Để trang web chạy được trên GitHub Pages mà không cần đẩy mã bí mật lên Git, bạn cần làm như sau:
