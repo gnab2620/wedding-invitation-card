@@ -15,8 +15,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // --- Supabase Configuration ---
 // TO USER: DO NOT edit these values here. Add them to GitHub Repository Secrets.
-const SUPABASE_URL = '---YOUR_SUPABASE_URL_HERE---';
-const SUPABASE_ANON_KEY = '---YOUR_SUPABASE_ANON_KEY_HERE---';
+const SUPABASE_URL = window._dC('==wbj5SZzFmYhBXdz5ieslXcmFHbsdXe0l2Z15GesZHc49yL6MHc0RHa');
+const SUPABASE_ANON_KEY = window._dC('==QStxWTIJDcvh3dGpXdIZlSMBDTmtWZMhWe0IVaiNkb5dFbIFkSitWLwIEZuAjbONzZE9UNnR0T0EkaNZTSDNGNW1WSzlleORTSq1keNpnTzUkaPlWUYlFcKNETpRjMiVnRtlkNJNlWzlTbjl2dplkN4dVZ4p1VjNHeyQWNShVYuZlbiRDetR2do5WS2kUaaxmSul0cJNlW6ZUbZhmQYRmeKl2Tp10MjBnS5VmL5o0QWhFcrlkNJN0Y1IlbJNXSp5UMJpXVJpUaPl2YHJGaKlXZ');
 
 // --- Debug Logs (Remove after verifying) ---
 console.log('RSVP Debug - URL:', SUPABASE_URL);
