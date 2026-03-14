@@ -121,7 +121,7 @@
 
                         <div class="ceremony-date-grid">
                             <div class="date-item time">11 GIỜ 30</div>
-                            <div class="date-item main-date">
+                            <div class="date-item main-date highlight-date">
                                 <span>22</span>
                                 <span>03</span>
                                 <span>26</span>
@@ -169,7 +169,7 @@
 
                         <div class="ceremony-date-grid">
                             <div class="date-item time">15 GIỜ</div>
-                            <div class="date-item main-date">
+                            <div class="date-item main-date highlight-date">
                                 <span>21</span>
                                 <span>03</span>
                                 <span>26</span>
@@ -407,6 +407,21 @@
             </div>
         </div>
     </section>
+
+    <!-- Background Music -->
+    <audio id="bgMusic" loop preload="auto">
+        <source
+            src="https://res.cloudinary.com/dmfc9xovq/video/upload/v1773491745/Zack_Tabudlo_-_Give_Me_Your_Forever_Lyric_Video_j0mapl.mp3"
+            type="audio/mpeg">
+    </audio>
+    <button class="music-toggle" id="musicToggle" aria-label="Bật/Tắt Nhạc">
+        <svg class="music-icon play-icon" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M8 5v14l11-7z" />
+        </svg>
+        <svg class="music-icon pause-icon" viewBox="0 0 24 24" fill="currentColor" style="display: none;">
+            <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+        </svg>
+    </button>
 
     <!-- Footer -->
     <footer class="footer">

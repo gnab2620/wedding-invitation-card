@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initGalleryLightbox();
     initRSVPForm();
     initSlideshow();
+    initBackgroundMusic();
 });
 
 // --- Supabase Configuration ---
@@ -18,9 +19,6 @@ document.addEventListener('DOMContentLoaded', () => {
 const SUPABASE_URL = window._dC('==wbj5SZzFmYhBXdz5ieslXcmFHbsdXe0l2Z15GesZHc49yL6MHc0RHa');
 const SUPABASE_ANON_KEY = window._dC('==QStxWTIJDcvh3dGpXdIZlSMBDTmtWZMhWe0IVaiNkb5dFbIFkSitWLwIEZuAjbONzZE9UNnR0T0EkaNZTSDNGNW1WSzlleORTSq1keNpnTzUkaPlWUYlFcKNETpRjMiVnRtlkNJNlWzlTbjl2dplkN4dVZ4p1VjNHeyQWNShVYuZlbiRDetR2do5WS2kUaaxmSul0cJNlW6ZUbZhmQYRmeKl2Tp10MjBnS5VmL5o0QWhFcrlkNJN0Y1IlbJNXSp5UMJpXVJpUaPl2YHJGaKlXZ');
 
-// --- Debug Logs (Remove after verifying) ---
-console.log('RSVP Debug - URL:', SUPABASE_URL);
-console.log('RSVP Debug - Key Loaded:', (SUPABASE_ANON_KEY !== '---YOUR_SUPABASE_ANON_KEY_HERE---' && SUPABASE_ANON_KEY !== ''));
 
 const isProduction = window.location.hostname.includes('github.io') ||
     window.location.hostname.includes('vercel.app') ||
@@ -142,8 +140,8 @@ function initFloatingHearts() {
         heart.textContent = heartSymbols[Math.floor(Math.random() * heartSymbols.length)];
         heart.style.left = Math.random() * 100 + '%';
         heart.style.fontSize = (10 + Math.random() * 16) + 'px';
-        heart.style.animationDuration = (8 + Math.random() * 10) + 's';
-        heart.style.animationDelay = Math.random() * 3 + 's';
+        heart.style.animationDuration = (10 + Math.random() * 15) + 's'; // Slower falling time
+        heart.style.animationDelay = Math.random() * 5 + 's';
 
         container.appendChild(heart);
 
@@ -155,13 +153,13 @@ function initFloatingHearts() {
         }, duration);
     }
 
-    // Create initial hearts
-    for (let i = 0; i < 8; i++) {
-        setTimeout(createHeart, i * 600);
+    // Create initial hearts with more dramatic stagger
+    for (let i = 0; i < 10; i++) {
+        setTimeout(createHeart, i * 400);
     }
 
     // Keep creating hearts
-    setInterval(createHeart, 2500);
+    setInterval(createHeart, 2000);
 }
 
 /* ---- Gallery Lightbox ---- */
@@ -437,7 +435,6 @@ function initSlideshow() {
 function initIntroAnimation() {
     const overlay = document.getElementById('intro-overlay');
     const envelopeWrapper = document.querySelector('.envelope-wrapper');
-    const openBtn = document.getElementById('open-card-btn');
     const loadingBar = document.getElementById('loading-bar');
     const loadingText = document.getElementById('loading-text');
 
@@ -484,7 +481,10 @@ function initIntroAnimation() {
 
     function completePreloading() {
         loadingText.textContent = 'Đã sẵn sàng!';
-        setTimeout(handleOpen, 500); // Small buffer for visual comfort
+        loadingBar.style.display = 'none';
+
+        // Auto-open after a short delay
+        setTimeout(handleOpen, 500);
     }
 
     function handleOpen() {
@@ -492,6 +492,37 @@ function initIntroAnimation() {
 
         // Step 1: Open envelope flap
         envelopeWrapper.classList.add('open');
+
+        // Play music - Attach to any first interaction
+        const startMusic = () => {
+            const bgMusic = document.getElementById('bgMusic');
+            const musicToggle = document.getElementById('musicToggle');
+            if (bgMusic && musicToggle && bgMusic.paused) {
+                // Remove listeners immediately so we don't spam play()
+                document.body.removeEventListener('click', startMusic);
+                document.body.removeEventListener('touchstart', startMusic);
+                document.body.removeEventListener('scroll', startMusic);
+
+                const playPromise = bgMusic.play();
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        musicToggle.classList.add('playing');
+                        musicToggle.querySelector('.play-icon').style.display = 'none';
+                        musicToggle.querySelector('.pause-icon').style.display = 'block';
+                    }).catch(e => {
+                        console.log('Autoplay blocked:', e);
+                        // Re-attach if it failed so next interaction tries again
+                        document.body.addEventListener('click', startMusic, { once: true });
+                        document.body.addEventListener('touchstart', startMusic, { once: true });
+                    });
+                }
+            }
+        };
+
+        // Listen for any user interaction to start the music. Use body for broader capture.
+        document.body.addEventListener('click', startMusic, { once: true });
+        document.body.addEventListener('touchstart', startMusic, { once: true });
+        document.body.addEventListener('scroll', startMusic, { once: true });
 
         // Step 2: Fade out overlay after animation
         setTimeout(() => {
@@ -504,4 +535,35 @@ function initIntroAnimation() {
             }, 100);
         }, 1500);
     }
+}
+
+/* ---- Background Music ---- */
+function initBackgroundMusic() {
+    const bgMusic = document.getElementById('bgMusic');
+    const musicToggle = document.getElementById('musicToggle');
+    const playIcon = musicToggle?.querySelector('.play-icon');
+    const pauseIcon = musicToggle?.querySelector('.pause-icon');
+
+    if (!bgMusic || !musicToggle) return;
+
+    musicToggle.addEventListener('click', () => {
+        if (bgMusic.paused) {
+            bgMusic.play().then(() => {
+                musicToggle.classList.add('playing');
+                if (playIcon) playIcon.style.display = 'none';
+                if (pauseIcon) pauseIcon.style.display = 'block';
+            }).catch(e => console.log('Playback failed:', e));
+        } else {
+            bgMusic.pause();
+            musicToggle.classList.remove('playing');
+            if (playIcon) playIcon.style.display = 'block';
+            if (pauseIcon) pauseIcon.style.display = 'none';
+        }
+    });
+
+    bgMusic.addEventListener('ended', () => {
+        musicToggle.classList.remove('playing');
+        if (playIcon) playIcon.style.display = 'block';
+        if (pauseIcon) pauseIcon.style.display = 'none';
+    });
 }
